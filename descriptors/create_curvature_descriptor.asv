@@ -1,0 +1,24 @@
+function [D,d] = create_curvature_descriptor(S,k,n)
+
+    X               = points(S);
+    U               = normals(S);
+    C               = 1 - abs(U.'*U);
+    [Kidx,Kdis]     = knnsearch( X.', X.', 'K', k );
+    Kdis_max        = max(max(Kdis));
+    Kdis_min        = min(min(Kdis));
+    Kdis_score      = (Kdis-Kdis_min)/(Kdis_max-Kdis_min);
+    
+    R               = linspace(0,1,n);
+    
+    N               = size(X,2);
+    M               = numel(R);
+    
+    D               = zeros(M,N);
+    d               = zeros(1,N);
+    
+    for idx = 1:N
+        D(idx,:) = histc( C(Kidx(idx,:)), R );
+        d(
+    end
+
+end
