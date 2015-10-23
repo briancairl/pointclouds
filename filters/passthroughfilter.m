@@ -1,4 +1,4 @@
-function Sp = passthrough(S,dim,limits)
+function Sp = passthroughfilter(S,dim,limits)
     
     % Do filtering
     N               = size(S.points,2);
