@@ -5,28 +5,33 @@
 % @input    S       valid scan struct
 function view_scan(S,varargin)
     
-
+    % Defaults
     show_normals = true;
     show_source  = true;
     show_shade   = false;
     scores       = [];
-    
+    bgcolor      = [0,0,0];
     nvararg      = numel(varargin);
+    
+    
     hold on 
     delvar       = [];
     for idx = 1:2:nvararg
         if      strcmpi(varargin{idx},'NORMALS')
-            show_normals = strcmpi(varargin{idx+1},'ON');
-            delvar = [delvar,idx,idx+1]; %#ok<AGROW>
+            show_normals= strcmpi(varargin{idx+1},'ON');
+            delvar      = [delvar,idx,idx+1]; %#ok<AGROW>
         elseif  strcmpi(varargin{idx},'SOURCE')
-            show_source  = strcmpi(varargin{idx+1},'ON');
-            delvar = [delvar,idx,idx+1]; %#ok<AGROW>
+            show_source = strcmpi(varargin{idx+1},'ON');
+            delvar      = [delvar,idx,idx+1]; %#ok<AGROW>
         elseif  strcmpi(varargin{idx},'SHADE')
             show_shade  = strcmpi(varargin{idx+1},'ON');
-            delvar = [delvar,idx,idx+1]; %#ok<AGROW>
+            delvar      = [delvar,idx,idx+1]; %#ok<AGROW>
         elseif  strcmpi(varargin{idx},'SCORES')
-            scores = varargin{idx+1};
-            delvar = [delvar,idx,idx+1]; %#ok<AGROW>
+            scores      = varargin{idx+1};
+            delvar      = [delvar,idx,idx+1]; %#ok<AGROW>
+        elseif  strcmpi(varargin{idx},'BACKGROUNDCOLOR')
+            bgcolor     = varargin{idx+1};
+            delvar      = [delvar,idx,idx+1]; %#ok<AGROW>
         end
     end
     varargin(delvar)=[];
@@ -71,8 +76,11 @@ function view_scan(S,varargin)
         plot3(0,0,0,'gx','MarkerSize',10);
     end
     hold off
-    set(gca,'Color','k')
-    set(gcf,'Color','k')
+    set(gca,'Color',bgcolor)
+    set(gcf,'Color',bgcolor)
+    set(gca,'XColor',bgcolor)
+    set(gca,'YColor',bgcolor)
+    set(gca,'ZColor',bgcolor)
     set(gcf,'Name',sprintf('Time : %f | Scan size : %d',S.timestamp,size(S.points,2)));
 end
 
