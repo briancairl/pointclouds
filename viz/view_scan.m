@@ -8,8 +8,7 @@ function view_scan(S,varargin)
     % Defaults
     show_normals = true;
     show_source  = true;
-    show_shade   = false;
-    scores       = [];
+    f_map        = [];
     bgcolor      = [0,0,0];
     nvararg      = numel(varargin);
     
@@ -23,11 +22,10 @@ function view_scan(S,varargin)
         elseif  strcmpi(varargin{idx},'SOURCE')
             show_source = strcmpi(varargin{idx+1},'ON');
             delvar      = [delvar,idx,idx+1]; %#ok<AGROW>
-        elseif  strcmpi(varargin{idx},'SHADE')
-            show_shade  = strcmpi(varargin{idx+1},'ON');
-            delvar      = [delvar,idx,idx+1]; %#ok<AGROW>
-        elseif  strcmpi(varargin{idx},'SCORES')
-            scores      = varargin{idx+1};
+        elseif  strcmpi(varargin{idx},'MAP')
+            show_normals= false;
+            f_map       = varargin{idx+1};
+            f_map       = (f_map-min(f_map))./(max(f_map)-min(f_map)) + eps;
             delvar      = [delvar,idx,idx+1]; %#ok<AGROW>
         elseif  strcmpi(varargin{idx},'BACKGROUNDCOLOR')
             bgcolor     = varargin{idx+1};
@@ -37,7 +35,7 @@ function view_scan(S,varargin)
     varargin(delvar)=[];
     if ~isempty(S.points)
         if  (size(S.points,1)==6) && show_normals
-            if  isempty(scores)
+            if  isempty(f_map)
                 quiver3(    S.points(1,:), S.points(2,:), S.points(3,:),    ...
                             S.points(4,:), S.points(5,:), S.points(6,:),    ...
                             'Marker', '.',                                  ...
@@ -47,14 +45,14 @@ function view_scan(S,varargin)
             else
                 quiver3(    S.points(1,:), S.points(2,:), S.points(3,:),    ...
                             S.points(4,:), S.points(5,:), S.points(6,:),    ...
-                            scores,                                         ...
+                            f_map,                                         ...
                             'Marker', '.',                                  ...
                             'MarkerSize', 4,                                ...
                             varargin{:}                                     ...
                        );
             end
         else
-            if  isempty(scores)
+            if  isempty(f_map)
                 plot3(      S.points(1,:), S.points(2,:), S.points(3,:),    ...
                             'Marker', '.',                                  ...
                             'MarkerSize', 4,                                ...
@@ -63,8 +61,8 @@ function view_scan(S,varargin)
                        );       
             else
                 scatter3(   S.points(1,:), S.points(2,:), S.points(3,:),    ...
-                            3*scores+1,                                     ...
-                            score2colors(scores,show_shade),                ...
+                            f_map*10,                                              ...
+                            f_map,                                         ...
                             'Marker', '.',                                  ...
                             varargin{:}                                     ...
                        );      
@@ -76,22 +74,13 @@ function view_scan(S,varargin)
         plot3(0,0,0,'gx','MarkerSize',10);
     end
     hold off
-    set(gca,'Color',bgcolor)
-    set(gcf,'Color',bgcolor)
+    set(gca,'Color' ,bgcolor)
+    set(gcf,'Color' ,bgcolor)
     set(gca,'XColor',bgcolor)
     set(gca,'YColor',bgcolor)
     set(gca,'ZColor',bgcolor)
-    set(gcf,'Name',sprintf('Time : %f | Scan size : %d',S.timestamp,size(S.points,2)));
-end
-
-function C = score2colors(scores,shade)
-    cm  = colormap;
-    N   = size(cm,1);
-    ns  = (scores+eps)/(max(scores)+eps);
-    ni  = ceil(ns*N);
-    if shade
-        C = cm(ni,:).*repmat(ns,1,3);
-    else
-        C = cm(ni,:);
-    end
+    set(gca,'XTick' ,[])
+    set(gca,'YTick' ,[])
+    set(gca,'ZTick' ,[])
+    set(gcf,'Name'  ,sprintf('Time : %f | Scan size : %d',S.timestamp,size(S.points,2)));
 end

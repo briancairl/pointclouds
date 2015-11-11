@@ -7,6 +7,7 @@ function Sp = passthroughfilter(S,dim,limits)
     select          = all((S.points(dim,:) > ltl) & (S.points(dim,:) <= gtl),1);
     
     % Copy-Select
+    Sp              = scan();
     Sp.timestamp    = S.timestamp;
     Sp.points       = S.points(:,select);
 end

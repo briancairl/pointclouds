@@ -15,11 +15,13 @@ classdef scan
     methods
 
         
-        % knearest
+        % SUBSET
         %
-        % @brief    Returns indices of K nearest points in 'OTHER'
-        function [idx,d] = knearest(self,other,k)
-            [idx,d] = knnsearch(self.points.',other.points.','K',k);
+        % @brief    Returns a subset of a scan
+        function sub = knear(self,other,k)
+            sub             = scan;
+            sub.timestamp   = self.timestamp;
+            sub.points      = self.points(:,sel);
         end
         
         
