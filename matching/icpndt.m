@@ -1,4 +1,4 @@
-% [dst,TR,TT] = IXP( x, y, errortol, step_weight, max_iterations )
+% [dst,TR,TT] = ICPNDT( x, y, errortol, step_weight, max_iterations )
 %   
 %   Inputs:
 %       X               source points
@@ -14,15 +14,16 @@
 %       TT              final translation between source and model
 %       ERR             final allignment error
 %
-function [dst,TR,TT,err] = icp( x, y, errortol, max_iterations )
+function [dst,TR,TT,err] = icpndt( N1, N2, errortol, max_iterations )
     
     err_last        = 1e100;                    
-    err             = 1e90;                     % initialize errors with a large value
+    err             = 1e90;             % initialize errors with a large value
     
-    TR              = eye(size(x,1));           % initialize final rotation as identity
-    TT              = zeros(size(x,1),1);       % initialize final translation as zero-vector
-    alpha           = 1;
+    TR              = eye(3);          % initialize final rotation as identity
+    TT              = zeros(3,1);      % initialize final translation as zero-vector
     
+    x               = N1(1:3,:);
+    y               = N2(1:3,:);
     
     % Loop until convergence criteria met
     while abs(err-err_last) > errortol || (err > err_last)
@@ -37,15 +38,19 @@ function [dst,TR,TT,err] = icp( x, y, errortol, max_iterations )
         end
         
         [idx,d]     = knnsearch(y.',x.','K',1);         % find NN indices
-        keep        = d < mean(d);
+        keep        = ( d < ( N1(4,:).' + N2(4,idx).') );
         
-        X           = x(:,keep);
-        Y           = y(:,idx(keep));
+        %X           = x(:,keep);
+        %Y           = y(:,idx(keep));
         
-        [X_C,cX]    = mean_center(X);
-        [Y_C,cY]    = mean_center(Y);
+        X           = x;
+        Y           = y(:,idx);
         
-        R           = ls_rigid_rotation(X_C,Y_C);       % get rigid rotation between nearest points in Y and X
+        [X_C,cX]    = mean_center(X,N1(5,: ));
+        [Y_C,cY]    = mean_center(Y,N2(5,idx(:)));
+        
+        W           = diag(N1(5,: ).*N2(5,idx(:)));
+        R           = ls_rigid_rotation(X_C,W,Y_C);     % get rigid rotation between nearest points in Y and X
         V           = cY - R*cX;                        % get translation between nearest points in Y and X
         
         TR          = R * TR;                           % incorperate rotation into total rotation
@@ -65,8 +70,8 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-function [X_C,xc] = mean_center(X)
-    xc  = mean(X,2);
+function [X_C,xc] = mean_center(X,P)
+    xc  = sum(X.*repmat(P/sum(P),3,1),2);
     C_X = repmat( xc, 1, size(X,2) );
     X_C = X - C_X;
 end
@@ -81,8 +86,8 @@ end
 
 % Computes the least-squares rigid rotation between X and Y (centroid
 % shifted) using SVD
-function R  = ls_rigid_rotation(X,Y)
-    H       = X*Y.';
+function R  = ls_rigid_rotation(X,W,Y)
+    H       = X*W*Y.';
     [U,~,V] = svd(H);
     R       = V*U.';
 end

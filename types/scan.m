@@ -108,7 +108,21 @@ classdef scan
         function view(self,varargin)
             view_scan(self,varargin{:});
         end
-            
+        
+        
+        
+        % SCAN
+        function s = scan(varargin)
+            while numel(varargin)
+               if       strcmpi(varargin{1},'POINTS');
+                    s.points = varargin{2};
+               elseif   strcmpi(varargin{1},'TIMESTAMP');
+                    s.timestamp = varargin{2};
+               end
+               varargin(1:2) = [];
+            end
+        end
+        
     end
     
 end

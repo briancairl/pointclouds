@@ -1,8 +1,10 @@
-% [dst,TR,TT] = IXP( x, y, errortol, step_weight, max_iterations )
+% [dst,TR,TT] = ICPN( x, y, xu, yu, angtol, errortol, max_iterations )
 %   
 %   Inputs:
 %       X               source points
 %       Y               model points
+%       XU              source normals
+%       YU              model normals
 %       ERRORTOL        maxmimum difference between successive errors 
 %                       until covergence
 %       MAX_ITERATIONS  maximum iterations before stopping 
@@ -14,7 +16,7 @@
 %       TT              final translation between source and model
 %       ERR             final allignment error
 %
-function [dst,TR,TT,err] = icp( x, y, errortol, max_iterations )
+function [dst,TR,TT,err] = icp( x, y, xu, yu, angtol, errortol, max_iterations )
     
     err_last        = 1e100;                    
     err             = 1e90;                     % initialize errors with a large value
@@ -23,9 +25,12 @@ function [dst,TR,TT,err] = icp( x, y, errortol, max_iterations )
     TT              = zeros(size(x,1),1);       % initialize final translation as zero-vector
     alpha           = 1;
     
+    % Compound
+    x = [x;xu];
+    y = [y;yu];
     
     % Loop until convergence criteria met
-    while abs(err-err_last) > errortol || (err > err_last)
+    while abs(err-err_last) > errortol
         
         if  ~max_iterations
             % abort when max iterations met
@@ -36,11 +41,16 @@ function [dst,TR,TT,err] = icp( x, y, errortol, max_iterations )
             max_iterations = max_iterations - 1;
         end
         
-        [idx,d]     = knnsearch(y.',x.','K',1);         % find NN indices
-        keep        = d < mean(d);
+        [idx,~]     = knnsearch(y.',x.','K',1);         % find NN indices
         
-        X           = x(:,keep);
-        Y           = y(:,idx(keep));
+        
+        % Get dot prod
+        U           = sum( (xu-yu(:,idx)).^2, 1 ).^(1/2);
+        d_keep      = U < angtol;
+        
+        
+        X           = x(1:3,d_keep);
+        Y           = y(1:3,idx( d_keep ));
         
         [X_C,cX]    = mean_center(X);
         [Y_C,cY]    = mean_center(Y);
@@ -50,10 +60,10 @@ function [dst,TR,TT,err] = icp( x, y, errortol, max_iterations )
         
         TR          = R * TR;                           % incorperate rotation into total rotation
         TT          = R * TT + V;                       % incorperate translation into total translation
-        x           = R * x + repmat(V,1,size(x,2));    % apply transform to source set
+        x(1:3,:)    = R * x(1:3,:) + repmat(V,1,size(x(1:3,:),2));    % apply transform to source set
         
         err_last    = err;
-        err         = calculate(X,Y);                   % calculate new total error 
+        err         = calculate(x(1:3,:),y(1:3,idx));            % calculate new total error 
     end
     
     dst = x; % set corrected source set as output
