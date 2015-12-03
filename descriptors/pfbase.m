@@ -1,4 +1,4 @@
-function pf = pf_descriptor(xs,xt,us,ut)
+function pf = pfbase(xs,xt,us,ut)
 
     N                       = size(xs,2)*size(xt,2);
     pf                      = zeros(4,N);

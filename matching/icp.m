@@ -14,18 +14,16 @@
 %       TT              final translation between source and model
 %       ERR             final allignment error
 %
-function [dst,TR,TT,err] = icp( x, y, errortol, max_iterations )
+function [dst,TR,TT,err] = icp( x, y, errortol, max_iterations, dmax )
     
     err_last        = 1e100;                    
     err             = 1e90;                     % initialize errors with a large value
     
     TR              = eye(size(x,1));           % initialize final rotation as identity
     TT              = zeros(size(x,1),1);       % initialize final translation as zero-vector
-    alpha           = 1;
-    
-    
+       
     % Loop until convergence criteria met
-    while abs(err-err_last) > errortol || (err > err_last)
+    while abs(err-err_last) > errortol
         
         if  ~max_iterations
             % abort when max iterations met
@@ -37,7 +35,7 @@ function [dst,TR,TT,err] = icp( x, y, errortol, max_iterations )
         end
         
         [idx,d]     = knnsearch(y.',x.','K',1);         % find NN indices
-        keep        = d < mean(d);
+        keep        = d < dmax;
         
         X           = x(:,keep);
         Y           = y(:,idx(keep));

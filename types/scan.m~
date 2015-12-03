@@ -10,22 +10,13 @@ classdef scan
         points      = [];
         normals     = [];
         colors      = [];
+        map         = [];
     end
     
     
     
     methods
 
-        
-        
-        % RANDOM
-        function self = random(self,n)
-           U    = randn(3,n)+ones(3,n); U = U./repmat( sum(U,1), 3, 1);
-           X    = randn(3,n)*10;
-           C    = rand(3,n);
-           self = scan('Points',X,'Normals',U,'Colors',C);
-        end
-        
         
         % ISEMPTY
         % 
@@ -47,9 +38,9 @@ classdef scan
         end
         
         
-        % ISSCAN
-        function b = isscan(self)
-           b = strcmpi(class(self),'scan');
+        % ISMAPPED
+        function b = ismapped(self)
+           b = ~isempty(self.map); 
         end        
         
         
@@ -57,7 +48,7 @@ classdef scan
         %
         % @brief    Returns indices of K nearest points in 'OTHER'
         function [idx,d] = knearest(self,other,k)
-            if  ~isnumeric(other)
+            if isnumeric(other)
                 % Scan to Scan
                 [idx,d] = knnsearch(other.points.',self.points.','K',k);
             else
@@ -82,7 +73,7 @@ classdef scan
             end
             
             % Normals
-            if self.issurf();
+            if self.iscolored();
                sub.normals  = self.normals(:,sel); 
             end
         end
@@ -159,7 +150,7 @@ classdef scan
        
          % VIEW (shorthand for view_scan)
         function view(self,varargin)
-            viewscan(self,varargin{:});
+            view_scan(self,varargin{:});
         end
         
         
@@ -189,6 +180,8 @@ classdef scan
                         s.points    = vecdimcheck(varargin{1},3,varargin{2});
                    elseif   strcmpi(varargin{1},'NORMALS');
                         s.normals   = vecdimcheck(varargin{1},3,varargin{2});
+                   elseif   strcmpi(varargin{1},'MAP');
+                        s.map       = vecdimcheck(varargin{1},1,varargin{2});
                    elseif   strcmpi(varargin{1},'COLORS');
                         s.colors    = vecdimcheck(varargin{1},3,varargin{2});
                    elseif   strcmpi(varargin{1},'TIMESTAMP');

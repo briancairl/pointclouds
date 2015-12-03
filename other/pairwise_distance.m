@@ -1,4 +1,4 @@
-function [D,d,m,NII,MII] = pairwise_distance(X,Y,p)
+function [D,d,m,NII,MII] = pairwiselp(X,Y,p)
     N   = size(X,2);
     M   = size(Y,2);
     D   = zeros(N,M);

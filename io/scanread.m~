@@ -1,0 +1,28 @@
+function S = scanread(fid,n)
+    matpcl_checkversion(2);
+    
+    if  isempty(n)
+        n = 1;
+        S = scan();
+    else
+        S = cell(1,n);
+    end
+    
+
+    if  fid > 0
+        % Read timestamp
+        S.timestamp = fread(fid,[1,1],'float32');
+        
+        % Read pointcloud data blocks
+        S.points    = readblock(fid);
+        S.normals   = readblock(fid);
+        S.colors    = readblock(fid); 
+        
+    else
+        error(sprintf('Could read file : %s\n',filename)); %#ok<SPERR>
+    end
+end
+function S = scanreadbase(fid)
+
+end
+

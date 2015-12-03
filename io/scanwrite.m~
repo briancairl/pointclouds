@@ -1,0 +1,34 @@
+function scanwrite(filename,S)
+    matpcl_checkversion(2);
+    
+    if isempty(S)
+        error('SCAN input is empty.');
+    else
+        fid = fopen(filename,'w');
+        if  fid > 0
+            
+        else
+            error(sprintf('Could not write to file : %s\n',filename)); %#ok<SPERR>
+        end
+    end
+end
+function mode = scanwriteheader(fid,S)
+    fwrite(fid,'MATPCL','char');
+    if iscell(S)
+        mode = 'C';
+        fwrite(fid,size(S,,char);
+    else
+        mode = 'S';
+        fwrite(fid,'MATPCL',char);
+    end
+end
+function scanwritebase(fid,S)
+    % Write timestamp
+    fwrite(fid,S.timestamp,'float32');
+
+    % Write pointcloud data blocks
+    writeblock(fid,S.points);
+    writeblock(fid,S.normals);
+    writeblock(fid,S.colors);
+end
+
