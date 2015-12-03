@@ -13,9 +13,11 @@ function viewscan(S,varargin)
     % Defaults
     viewsize                = -1;
     map                     = [];
+    bboxdat                 = [];
     show_map                = false;
     show_normals            = false;
     show_source             = true;
+    show_bbox               = false;
     show_rgb                = (~show_map) && iscolored(S);
     point_color             = 'w';
     normal_color            = 'w';
@@ -33,6 +35,9 @@ function viewscan(S,varargin)
             viewsize        = param(varargin,'DOUBLE');
         elseif  field(varargin,'SOURCE')
             show_source     = strcmpi( param(varargin,'CHAR') ,'ON');
+        elseif  field(varargin,'BBOX')
+            show_bbox       = strcmpi( param(varargin,'CHAR') ,'ON');
+            bboxdat         = bbox(S.points);
         elseif  field(varargin,'MARKERSIZE')
             markersize      = param(varargin,'DOUBLE');
         elseif  field(varargin,'RGB')
@@ -108,6 +113,11 @@ function viewscan(S,varargin)
     if  show_source
         plot3(0,0,0,'go','MarkerSize',8);
         plot3(0,0,0,'gx','MarkerSize',8);
+    end
+    
+    % Show bounding box
+    if  show_bbox
+        plotbbox(bboxdat,'Color','r')
     end
     hold off
 
