@@ -1,11 +1,10 @@
-function S = scanread(fid,varargin)
+function S = scanread(fid,n)
     matpcl_checkversion(2);
     
     if  fid > 0
-        if  isempty(varargin)
+        if  nargin == 1
             S = scanreadbase(fid);
         else
-            n   = varargin{1};
             idx = 0;
             S   = cell(1,n);
             while   true
@@ -22,6 +21,7 @@ function S = scanread(fid,varargin)
     else
         error(sprintf('Could read file : %s\n',filename)); %#ok<SPERR>
     end
+    
 end
 function [S,valid] = scanreadbase(fid)
     S = scan();
