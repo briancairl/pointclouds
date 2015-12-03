@@ -13,6 +13,8 @@
 %
 function BBOX   = bbox(pts)
     BBOX        = zeros(size(pts,1),2);
-    BBOX(:,1)   = max(pts,[],2);
-    BBOX(:,2)   = min(pts,[],2);
+    if ~isempty(pts)
+        BBOX(:,1)   = max(pts,[],2);
+        BBOX(:,2)   = min(pts,[],2);
+    end
 end
