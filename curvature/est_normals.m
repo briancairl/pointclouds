@@ -38,6 +38,7 @@ function [U,NNi] = est_normals(S,varargin)
 end
 function [NNi,doParallel,verbose]= procArgv( S, argv )
     
+    verbose     = false;
     doParallel  = false;
     NNi         = [];
     
