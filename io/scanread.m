@@ -5,30 +5,36 @@ function S = scanread(fid,varargin)
         if  isempty(varargin)
             S = scanreadbase(fid);
         else
-            n = varargin{1};
-            S = cell(1,n);
-            for idx = 1:n
-               if   feof(fid)
-                    warning( sprintf('File ended before %d SCANS read.',n) ); %#ok<SPWRN>
+            n   = varargin{1};
+            idx = 0;
+            S   = cell(1,n);
+            while   true
+                idx = idx + 1;
+                [S{idx},valid]  = scanreadbase(fid);
+                if 	idx == n
                     break;
-               else
-                    S{idx} = scanreadbase(fid);
-               end
+                elseif ~valid
+                    S(end) = [];
+                    break;
+                end
             end
         end
     else
         error(sprintf('Could read file : %s\n',filename)); %#ok<SPERR>
     end
 end
-function S = scanreadbase(fid)
+function [S,valid] = scanreadbase(fid)
     S = scan();
     
     % Read timestamp
     S.timestamp = fread(fid,[1,1],'float32');
 
     % Read pointcloud data blocks
-    S.points    = readblock(fid);
-    S.normals   = readblock(fid);
-    S.colors    = readblock(fid); 
+    [S.points ,v1] = readblock(fid);
+    [S.normals,v2] = readblock(fid);
+    [S.colors ,v3] = readblock(fid); 
+    
+    % Check validity
+    valid = v1&&v2&&v3;
 end
 
