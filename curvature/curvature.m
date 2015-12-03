@@ -6,7 +6,7 @@ function [cmap,NNi] = curvature(S,varargin)
     if  doParallel
         parfor idx = 1:size(S)
             LU          = U(:,NNi(idx,:)); %#ok<PFBNS>
-            CU          = abs( transpose(LU)*LU );
+            CU          = 1 - abs( transpose(LU)*LU );
             cmap(idx)   = max(eig(CU))/size(NNi,2);
         end
     else
