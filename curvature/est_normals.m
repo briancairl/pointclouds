@@ -14,8 +14,8 @@ function [U,NNi] = est_normals(S,varargin)
         end
 
         parfor idx      = 1:N
-            v           = pca(slices{idx}.');
-            U(:,idx)    = cross(v(:,1),v(:,2));
+            v               = pca(slices{idx}.');
+            U(:,idx)        = v(:,3);
             
             if verbose
                fprintf('Complete %f %%\n',idx/N*100);

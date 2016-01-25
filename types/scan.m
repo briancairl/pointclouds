@@ -165,18 +165,28 @@ classdef scan
         
         % ROTATE
         function self   = rotate(self,r)
-            if size(axa,2)==4
-                R = vrrotvec2mat(axa);
+            if size(r,2)==4
+                R = vrrotvec2mat(r);
             else
                 R = r;
             end
             
             self.points  = R*self.points;
            
-           if   ispointnormal(self)
+           if   issurf(self)
                 self.normals = R*self.normals;
            end
         end
+        
+        
+        
+        
+        % OFFSET
+        function self   = translate(self,r)
+            self.points = self.points + repmat(r,1,size(self)); 
+        end
+        
+        
         
         
         % SCAN

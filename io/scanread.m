@@ -1,6 +1,12 @@
 function S = scanread(fid,n)
     matpcl_checkversion(2);
     
+    fileopen = false;
+    if ischar(fid)
+        fid      = fopen(fid,'r');
+        fileopen = true;
+    end
+    
     if  fid > 0
         if  nargin == 1
             S = scanreadbase(fid);
@@ -19,7 +25,11 @@ function S = scanread(fid,n)
             end
         end
     else
-        error(sprintf('Could read file : %s\n',filename)); %#ok<SPERR>
+        error('Invalid file,');
+    end
+    
+    if  fileopen
+        fclose(fid);
     end
     
 end

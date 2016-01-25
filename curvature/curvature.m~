@@ -1,28 +1,26 @@
 function [cmap,NNi,NNd] = curvature(S,varargin)
-    [NNi,NNd,p,doParallel,~]= procArgv( S, varargin );
+    [NNi,NNd,doParallel,~]= procArgv( S, varargin );
     
     U       = getnormals(S);
     cmap    = zeros(1,size(S));
-    LU      = cell(size(S),1);
     
-    for idx = 1:size(S)
-        LU{idx} = U(:,NNi(idx,:));
-    end
     
     if  doParallel
         parfor idx = 1:size(S)
-            EV          = abs(eig(LU{idx}*transpose(LU{idx}))).^p;
-            cmap(idx)   = EV(1)/sum(EV);
+            LU          = U(:,NNi(idx,:)); %#ok<PFBNS>
+            CU          = 1 - abs( transpose(LU)*LU );
+            cmap(idx)   = max(eig(CU))/size(NNi,2);
         end
     else
         for idx = 1:size(S)
-            EV          = abs(eig(LU{idx}*transpose(LU{idx}))).^p;
-            cmap(idx)   = EV(1)/sum(EV);         
+            LU          = U(:,NNi(idx,:));
+            CU          = 1 - abs( transpose(LU)*LU );
+            cmap(idx)   = max(eig(CU))/size(NNi,2);           
         end
     end
 end
-function [NNi,NNd,p,doParallel,verbose]= procArgv( S, argv )
-    p           = 2;
+function [NNi,NNd,doParallel,verbose]= procArgv( S, argv )
+    
     verbose     = false;
     doParallel  = false;
     NNi         = [];
@@ -33,11 +31,7 @@ function [NNi,NNd,p,doParallel,verbose]= procArgv( S, argv )
             argv(1:2)   = [];
             
         elseif  strcmpi('VERBOSE' , argv{1})
-            verbose     = strcmpi(argv{2},'ON');
-            argv(1:2)   = [];
-        
-        elseif  strcmpi('P' , argv{1})
-            p           = argv{2};
+            verbose = strcmpi(argv{2},'ON');
             argv(1:2)   = [];
             
         elseif  strcmpi('K' , argv{1})

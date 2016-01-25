@@ -1,8 +1,15 @@
 function scanwrite(fid,S)
     matpcl_checkversion(2);
+    
     if  isempty(S)
         error('SCAN input is empty.');
     else
+        fileopen = false;
+        if ischar(fid)
+            fileopen = true;
+            fid = fopen(fid,'w');
+        end
+        
         if  fid > 0
             if  iscell(S)
                 for idx = 1:max(size(S))
@@ -12,7 +19,11 @@ function scanwrite(fid,S)
                 scanwritebase(fid,S);
             end
         else
-            error(sprintf('Could not write to file : %s\n',filename)); %#ok<SPERR>
+            error('Invalid file.');
+        end
+        
+        if  fileopen
+            fclose(fid);
         end
     end
 end

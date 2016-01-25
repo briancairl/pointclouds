@@ -13,7 +13,6 @@ function u = normalize(v,type)
             u = v / max(v);
         end
     else
-        M = repmat( sqrt(sum(v.^2,1)), size(v,1), 1 );
-        u = v./M;
+        M = rempat( sumH.^2
     end
 end
